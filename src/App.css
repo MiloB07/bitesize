@@ -1,0 +1,34 @@
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.placeholder-card {
+  width: min(420px, 100%);
+  padding: 48px 32px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(52, 82, 120, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.placeholder-card h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.placeholder-card p {
+  color: var(--text-soft);
+}
+
+/* The world map fills the screen below the bar, framed by the section color */
+.content--map {
+  align-items: stretch;
+  padding: 16px;
+}

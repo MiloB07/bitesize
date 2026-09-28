@@ -1,0 +1,573 @@
+.world-map {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #b4d5f3;
+  box-shadow:
+    0 12px 40px rgba(30, 40, 90, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.world-map.is-dragging {
+  cursor: grabbing;
+}
+
+.world-map:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 3px;
+}
+
+.world-map__world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.world-map__world > svg {
+  display: block;
+}
+
+.world-map__ocean {
+  display: block;
+}
+
+.world-map__label {
+  position: absolute;
+  margin: 0;
+  translate: -50% -70%;
+  color: #50688f;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  /* A soft halo keeps names readable over water and beaches */
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.8),
+    0 0 2px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  animation: label-appear 500ms var(--ease-out) both;
+}
+
+@keyframes label-appear {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 0.8;
+    transform: none;
+  }
+}
+
+/* ---------- Islands rising out of the ocean ---------- */
+
+.island {
+  position: absolute;
+  pointer-events: none;
+}
+
+.island > svg {
+  display: block;
+  overflow: visible;
+}
+
+/* The water around an island turns shallow just before it surfaces */
+.island--shallow {
+  animation: shallow-appear 700ms var(--ease-out) both;
+}
+
+@keyframes shallow-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Surfaces from under the water (its cliffs' height plus a bit), shoots past
+   its resting height, drops back a little too far, then bobs once */
+.island--land {
+  animation: island-emerge 1150ms both;
+}
+
+@keyframes island-emerge {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--rise)) scale(0.6);
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1.06);
+    animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+  }
+  68% {
+    transform: translateY(8px) scale(0.985);
+    animation-timing-function: ease-in-out;
+  }
+  84% {
+    transform: translateY(-4px) scale(1.008);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Trees and buildings grow up out of the ground, with a little overshoot */
+.island--sprout {
+  animation: sprout 520ms both;
+}
+
+@keyframes sprout {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.2);
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  60% {
+    opacity: 1;
+    transform: scaleY(1.08);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Foam ring spreading out where an island breaks the surface */
+.splash {
+  position: absolute;
+  border: 10px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: splash 1100ms var(--ease-out) both;
+}
+
+@keyframes splash {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+.island-extra {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: extra-appear 400ms var(--ease-out) both;
+}
+
+@keyframes extra-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.world-map__compass {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 4px 10px rgba(30, 40, 90, 0.15));
+  pointer-events: none;
+}
+
+.world-map__zoom {
+  position: absolute;
+  right: 26px;
+  bottom: 94px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 10px rgba(30, 40, 90, 0.15);
+}
+
+.world-map__zoom button {
+  width: 48px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.world-map__zoom button + button {
+  border-top: 1px solid #dfe8f3;
+}
+
+.world-map__zoom button:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.world-map__zoom button:active {
+  transform: scale(0.94);
+}
+
+.world-map__zoom button:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: -2px;
+}
+
+.world-map__hint {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  pointer-events: none;
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+
+.world-map__hint[data-hidden='true'] {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ---------- Animated sprites ---------- */
+
+.sprite {
+  position: absolute;
+  pointer-events: none;
+}
+
+.sprite > svg {
+  display: block;
+  overflow: visible;
+}
+
+/* Clouds drift slowly back and forth */
+.sprite--cloud {
+  opacity: 0.92;
+  animation: cloud-drift linear infinite alternate;
+}
+
+@keyframes cloud-drift {
+  from {
+    transform: translateX(-80px);
+  }
+  to {
+    transform: translateX(80px);
+  }
+}
+
+/* Wave marks bob sideways and fade in and out */
+.sprite--wave {
+  opacity: 0;
+  animation: wave-bob 6s ease-in-out infinite;
+}
+
+@keyframes wave-bob {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateX(6px);
+  }
+}
+
+/* Ships rock gently on the water */
+.sprite--ship {
+  transform-origin: 50% 90%;
+  animation: ship-rock 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes ship-rock {
+  from {
+    transform: rotate(-4deg) translateY(0);
+  }
+  to {
+    transform: rotate(4deg) translateY(-3px);
+  }
+}
+
+/* Whales bob up and down */
+.sprite--whale {
+  animation: whale-bob 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes whale-bob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+/* Volcano smoke puffs rise, grow and fade */
+.smoke-puff {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 34px;
+  height: 34px;
+  margin-left: -17px;
+  border-radius: 50%;
+  background: #d9d0d6;
+  opacity: 0;
+  animation: smoke-rise 4.2s ease-out infinite;
+}
+
+@keyframes smoke-rise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(14px, -90px) scale(1.5);
+  }
+}
+
+/* The lighthouse lamp glows softly */
+.sprite--glow {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 230, 140, 0.75) 0%,
+    rgba(255, 230, 140, 0) 70%
+  );
+  animation: glow-pulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+  from {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Water streaming down a cliff: stripes slide downward on a loop */
+.waterfall {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 3px 3px 6px 6px;
+  pointer-events: none;
+}
+
+.waterfall::before {
+  content: '';
+  position: absolute;
+  inset: -40px 0 0;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.85) 0 7px,
+    rgba(255, 255, 255, 0) 7px 16px
+  );
+  animation: waterfall-flow 700ms linear infinite;
+}
+
+@keyframes waterfall-flow {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(16px);
+  }
+}
+
+.waterfall-foam {
+  position: absolute;
+  width: 44px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.waterfall-foam span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 12px;
+  margin: -6px 0 0 -9px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: foam-puff 1.5s ease-out infinite;
+}
+
+@keyframes foam-puff {
+  from {
+    opacity: 0.95;
+    transform: translate(0, 0) scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--drift, 10px), -6px) scale(1.8);
+  }
+}
+
+.waterfall-foam span:nth-child(2) {
+  --drift: -12px;
+}
+
+.waterfall-foam span:nth-child(3) {
+  --drift: 2px;
+}
+
+/* Whirlpools spin slowly, squashed to match the camera angle */
+.whirlpool {
+  position: absolute;
+  width: 140px;
+  height: 64px;
+  pointer-events: none;
+}
+
+.whirlpool > svg {
+  display: block;
+  transform: scaleY(0.45);
+  transform-origin: 70px 70px;
+  margin-top: -38px;
+  animation: whirlpool-spin 9s linear infinite;
+}
+
+@keyframes whirlpool-spin {
+  from {
+    transform: scaleY(0.45) rotate(0deg);
+  }
+  to {
+    transform: scaleY(0.45) rotate(-360deg);
+  }
+}
+
+/* Hot-air balloons drift up and down */
+.sprite--balloon {
+  animation: balloon-float 6s ease-in-out infinite alternate;
+}
+
+@keyframes balloon-float {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(30px, -26px);
+  }
+}
+
+/* Flocks of birds glide across, flapping */
+.birds {
+  position: absolute;
+  width: 120px;
+  height: 60px;
+  pointer-events: none;
+  animation: birds-fly linear infinite alternate;
+}
+
+@keyframes birds-fly {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(620px, -90px);
+  }
+}
+
+.bird {
+  position: absolute;
+  animation: bird-flap 600ms ease-in-out infinite alternate;
+}
+
+@keyframes bird-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.35);
+  }
+}
+
+/* Reduced motion: keep the scene, drop the movement */
+@media (prefers-reduced-motion: reduce) {
+  .island--shallow,
+  .island--land,
+  .island--sprout,
+  .world-map__label {
+    animation-name: extra-appear;
+    animation-duration: 400ms;
+  }
+
+  .splash {
+    display: none;
+  }
+
+  .waterfall::before,
+  .waterfall-foam span,
+  .whirlpool > svg,
+  .sprite--balloon,
+  .birds,
+  .bird {
+    animation: none;
+  }
+
+  .sprite--cloud,
+  .sprite--ship,
+  .sprite--whale,
+  .sprite--glow {
+    animation: none;
+  }
+
+  .sprite--wave {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .smoke-puff {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .smoke-puff:nth-child(2) {
+    transform: translate(6px, -34px) scale(1.1);
+    opacity: 0.4;
+  }
+
+  .smoke-puff:nth-child(3) {
+    transform: translate(12px, -66px) scale(1.4);
+    opacity: 0.2;
+  }
+}

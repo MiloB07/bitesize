@@ -1,0 +1,112 @@
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 4px 4px;
+  margin-right: -8px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.profile-menu__trigger:hover,
+.profile-menu__trigger[aria-expanded='true'] {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-menu__trigger:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.profile-menu__avatar {
+  display: flex;
+  border-radius: 50%;
+  /* Soft white ring so the circle sits nicely on the blue bar */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+.profile-menu__name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.profile-menu__first-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.profile-menu__last-name {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.profile-menu__list {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -8px;
+  min-width: 160px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--bar);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(52, 82, 120, 0.18);
+
+  /* Hidden state: fades and scales in from the top-right corner */
+  opacity: 0;
+  transform: scale(0.96) translateY(-4px);
+  transform-origin: top right;
+  visibility: hidden;
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out),
+    visibility 0s linear 150ms;
+}
+
+.profile-menu__list[data-open='true'] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+}
+
+.profile-menu__item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  /* Same size as the last name */
+  font-size: 0.78rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-menu__item:hover,
+.profile-menu__item:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-menu__list,
+  .profile-menu__list[data-open='true'] {
+    transform: none;
+  }
+}
